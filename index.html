@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Custom Map with Markers</title>
+<style>
+  #map {
+    height: 400px;
+    width: 100%;
+  }
+  #info-box {
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+  }
+  form {
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+<div id="info-box"></div>
+
+<form id="marker-form">
+  <label for="latitude">Latitude:</label>
+  <input type="text" id="latitude" name="latitude">
+  <label for="longitude">Longitude:</label>
+  <input type="text" id="longitude" name="longitude">
+  <label for="name">Name:</label>
+  <input type="text" id="name" name="name">
+  <label for="description">Description:</label>
+  <input type="text" id="description" name="description">
+  <button type="submit">Add Marker</button>
+</form>
+
+<script>
+// Sample data for initial markers
+let markersData = [
+  { lat: 40.7128, lng: -74.006, name: "New York", description: "The Big Apple" },
+  { lat: 34.0522, lng: -118.2437, name: "Los Angeles", description: "The City of Angels" },
+  { lat: 41.8781, lng: -87.6298, name: "Chicago", description: "The Windy City" }
+];
+
+function initMap() {
+  const map = new google.maps.Map(document.getElementById("map"), {
+    center: { lat: 37.7749, lng: -122.4194 },
+    zoom: 6
+  });
+
+  const infoBox = document.getElementById("info-box");
+  const markerForm = document.getElementById("marker-form");
+
+  // Function to add a new marker
+  function addMarker(markerData) {
+    const marker = new google.maps.Marker({
+      position: { lat: markerData.lat, lng: markerData.lng },
+      map: map,
+      title: markerData.name
+    });
+
+    marker.addListener("click", () => {
+      infoBox.innerHTML = `<h3>${markerData.name}</h3><p>${markerData.description}</p>`;
+      infoBox.style.display = "block";
+    });
+  }
+
+  // Add initial markers
+  markersData.forEach(markerData => {
+    addMarker(markerData);
+  });
+
+  // Handle form submission to add new marker
+  markerForm.addEventListener("submit", function(event) {
+    event.preventDefault();
+    const formData = new FormData(markerForm);
+    const newMarkerData = {
+      lat: parseFloat(formData.get("latitude")),
+      lng: parseFloat(formData.get("longitude")),
+      name: formData.get("name"),
+      description: formData.get("description")
+    };
+    markersData.push(newMarkerData);
+    addMarker(newMarkerData);
+    markerForm.reset();
+  });
+
+  // Close info box when clicking outside of it
+  map.addListener("click", () => {
+    infoBox.style.display = "none";
+  });
+}
+</script>
+<!-- Replace YOUR_API_KEY with your actual Google Maps API key -->
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
+
+</body>
+</html>
